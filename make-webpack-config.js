@@ -19,6 +19,7 @@ module.exports = function(options) {
 		"woff": "url-loader?limit=100000",
 		"ttf": "file-loader",
 		"wav|mp3": "file-loader",
+		"eot|woff": "file-loader",
 		"html": "html-loader",
 		"md|markdown": ["html-loader", "markdown-loader"],
 	};
@@ -26,7 +27,7 @@ module.exports = function(options) {
 		"css": "css-loader",
 		"less": "css-loader!less-loader",
 		"styl": "css-loader!stylus-loader",
-		"sass": "css-loader!sass-loader",
+		"scss": "css-loader!sass-loader",
 	}
 	var additionalLoaders = [
 		// { test: /some-reg-exp$/, loader: "any-loader" }

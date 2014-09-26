@@ -1,0 +1,39 @@
+.row {
+  display: flex;
+  height: 100%;
+}
+
+.row > * {
+  display: flex;
+  flex: 1;
+}
+
+.align-center {
+  display: flex;
+  align-items: center;
+}
+
+.align-center > * {
+  display: flex;
+}
+
+.sidebar {
+  font-family: 'Montserrat', sans-serif;
+  width: 200px;
+  flex: none;
+  display: block;
+  margin-right: 10px;
+  background: #F6F6F6;
+  color: #989898;
+  padding: 10px;
+}
+
+html {
+  height: 100%;
+}
+
+body {
+  background: #E0E0E0;
+  margin: 0;
+  height: 100%;
+}

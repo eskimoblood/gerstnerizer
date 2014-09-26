@@ -1,0 +1,42 @@
+input[type=range] {
+  margin: 10px 1px 9px 0;
+  -webkit-appearance: none;
+  background-color: #989898;
+  border-bottom: solid 1px #E3E3E3;
+  width: 200px;
+  height: 2px;
+  border-radius: 3px;
+  position: relative;
+  z-index: 2;
+}
+
+input[type=range]:focus {
+  outline: 0;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  background: radial-gradient(ellipse at center, #7c7c7c 1%, #7c7c7c 10%, #e5e5e5 20%, #e5e5e5 100%);
+  width: 15px;
+  height: 15px;
+  border-radius: 50%;
+}
+
+.slider[class*=" flaticon-"]:before {
+  font-size: 12px;
+  margin-right: 5px;
+  margin-left: 0;
+}
+
+.flaticon-columns:before {
+  display: inline-block;
+  transform: rotate(90deg) translate(-2px, -2px);;
+}
+
+.slider span {
+  font-size: 12px;
+}
+
+.slider {
+  margin-bottom: 10px;
+}
