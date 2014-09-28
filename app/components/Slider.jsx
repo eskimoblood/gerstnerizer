@@ -19,6 +19,7 @@ Slider = React.createClass({
   },
 
   render: function() {
+    console.log(this.state.value);
     var className = 'slider align-center glyph-icon flaticon-' + this.props.type;
     return <div className={className}>
       <input
@@ -26,8 +27,8 @@ Slider = React.createClass({
       max={this.props.max}
       type="range"
       step={this.props.step || 1}
-      onChange={this.onChange.bind(this, false)}
-      onMouseUp={this.onChange.bind(this, true)}
+      onChange={this.onChange.bind(this, true)}
+      onMouseUp={this.onChange.bind(this, false)}
       defaultValue={this.state.value}/>
       <span>{this.state.value}</span>
     </div>
@@ -35,6 +36,7 @@ Slider = React.createClass({
 
   onChange: function(isPreview, e) {
     var value = {};
+    console.log(isPreview);
     value[this.props.type] = parseFloat(e.target.value);
     this.getFlux().actions.changeSettings(value, isPreview);
   }

@@ -40,3 +40,20 @@ input[type="range"]::-webkit-slider-thumb {
 .slider {
   margin-bottom: 10px;
 }
+
+button {
+  background: linear-gradient(#FAFAFA 50%, #e5e5e5);
+  border: solid 1px #cfcfcf;
+  border-radius: 2px;
+  font-family: 'Montserrat', sans-serif;
+  color: #989898;
+  font-size: 12px;
+  padding: 5px 12px;
+}
+
+button:active{
+  background: linear-gradient(#FAFAFA 20%, #e5e5e5);
+}
+button:focus{
+  outline: 0;
+}

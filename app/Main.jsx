@@ -10,16 +10,12 @@ window.React = React;
 // render top-level react component
 var Slider = require("./components/Slider");
 var Grid = require("./components/Grid");
-var Sketch = require("./components/Sketch");
+var Sketch = require("./components/sketch/Sketch");
 var TypeSelector = require('./components/TypeSelector');
 
 var Application = React.createClass({
 
   mixins: [FluxMixin, StoreWatchMixin("Grid")],
-
-  keyDown: function() {
-    console.log(arguments);
-  },
 
   getStateFromFlux: function() {
     var flux = this.getFlux();
@@ -27,15 +23,17 @@ var Application = React.createClass({
   },
 
   componentDidMount: function() {
-    keymaster('ctrl+z, ⌘+z', this.undo)
-    keymaster('ctrl+shift+z, ⌘+⇧+z', this.redo)
+    keymaster('ctrl+z, ⌘+z', this.undo);
+    keymaster('ctrl+shift+z, ⌘+⇧+z', this.redo);
   },
 
   undo: function() {
+    console.log('undo');
     this.getFlux().actions.undo();
   },
 
   redo: function() {
+    console.log('redo');
     this.getFlux().actions.redo();
   },
 
@@ -53,6 +51,10 @@ var Application = React.createClass({
         <TypeSelector />
         <Sketch />
         <Slider type="rasterSize" min="2" max="20" step={step}/>
+        <dl>
+          <dt>alt+click</dt>
+          <dd>delete line</dd>
+        </dl>
       </div>
       <Grid />
 

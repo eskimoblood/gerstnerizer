@@ -37,3 +37,18 @@ body {
   margin: 0;
   height: 100%;
 }
+
+dl {
+  font-size: 11px;
+}
+
+dt {
+  clear: both;
+  float: left;
+  width: 65px;
+}
+
+dd {
+  float: left;
+  margin: 0 0 0 4px;
+}

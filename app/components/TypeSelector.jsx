@@ -23,7 +23,7 @@ var TypeSelector = React.createClass({
 
   render: function() {
     return <div className="type-selector row">
-      {['hex', 'rect', 'triangle'].map(function(i) {
+      {['triangle', 'rect', 'hex'].map(function(i) {
         var className = 'glyph-icon flaticon-' + i;
         if (this.state.type === i) {
           className += ' active';

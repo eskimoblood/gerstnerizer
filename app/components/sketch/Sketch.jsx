@@ -1,13 +1,16 @@
 /** @jsx React.DOM */
 
-require('../styles/sketch.scss');
+require('../../styles/sketch.scss');
 
 var React = require('react');
 var Fluxxor = require("fluxxor");
 var FluxChildMixin = Fluxxor.FluxChildMixin(React);
 var StoreWatchMixin = Fluxxor.StoreWatchMixin;
+var RandomLines = require('./RandomLines');
 var _ = require('lodash');
-var geom = require('../geom');
+var geom = require('../../geom/index');
+var Lines = require('./Lines');
+var cx = require('react/addons').addons.classSet;
 
 var Sketch = React.createClass({
 
@@ -34,25 +37,32 @@ var Sketch = React.createClass({
   render: function() {
     var translate = '';
     if (this.state.type === 'hex') {
-      translate = 'translate(-75, -45)'
+      translate = 'translate(-75, -45)';
     }
 
-    return <svg className="sketch" onMouseDown={this.startLine} onMouseUp={this.endLine}>
-      <g transform={translate}>
-        <polygon points={this.state.vertices} />
+    var classes = cx({
+      sketch: true,
+      preview: this.state.preview
+    });
+    return <div>
+      <svg className={classes} onMouseDown={this.startLine} onMouseUp={this.endLine} onMouseMove={this.updatePreview} onClick={this.endPreview} >
+        <g transform={translate} >
+          <polygon points={this.state.vertices} />
       {this.state.grid.map(function(c, i) {
         var key = 'p_' + i;
         return <circle cx={c.x} cy={c.y} r="1" key={key}/>
       })}
-      {this.state.lines.map(function(line) {
-        return <line
-        x1={line[0].x}
-        y1={line[0].y}
-        x2={line[1].x}
-        y2={line[1].y} />
-      })}
-      </g>
-    </svg>
+          <Lines lines={this.state.lines} preview={{
+            state: this.state.preview,
+            s: this.state.startPoint,
+            e: this.state.previewEndPoint
+          }}/>
+
+        </g>
+      </svg>
+      <button onClick={this.clear}>Clear</button>
+      <RandomLines grid={this.state.grid}/>
+    </div>
   },
 
   getOffset: function(e) {
@@ -70,7 +80,21 @@ var Sketch = React.createClass({
     if (e.altKey) {
       return;
     }
-    this.startPoint = geom.nearestPoint(this.state.grid, this.getOffset(e))
+    this.setState({
+      startPoint: geom.nearestPoint(this.state.grid, this.getOffset(e)),
+      previewEndPoint: geom.nearestPoint(this.state.grid, this.getOffset(e)),
+      preview: true
+    });
+  },
+
+  updatePreview: function(e) {
+    if (this.state.preview) {
+      this.setState({previewEndPoint: geom.nearestPoint(this.state.grid, this.getOffset(e))});
+    }
+  },
+
+  endPreview: function() {
+    this.setState({preview: false});
   },
 
   endLine: function(e) {
@@ -79,13 +103,17 @@ var Sketch = React.createClass({
       lines = this.removeLine(e, lines);
     } else {
       var endPoint = geom.nearestPoint(this.state.grid, this.getOffset(e));
-      lines.push([this.startPoint, endPoint]);
+      lines.push([this.state.startPoint, endPoint]);
     }
     this.getFlux().actions.setPattern(lines);
   },
 
+  clear: function() {
+    this.getFlux().actions.setPattern([]);
+  },
+
   removeLine: function(e, lines) {
-    var offset = this.getOffset(e)
+    var offset = this.getOffset(e);
 
     return lines.filter(function(line) {
       return geom.distanceToLine(offset.x, offset.y, line[0].x, line[0].y, line[1].x, line[1].y) > 5;

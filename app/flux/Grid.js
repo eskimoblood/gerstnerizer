@@ -14,7 +14,7 @@ var Grid = Fluxxor.createStore({
       pattern: []
     });
 
-    this.undoStack = Immutable.Vector(this.state);
+    this.undoStack = Immutable.Vector();
     this.redoStack = Immutable.Vector();
 
     this.bindActions(
@@ -26,20 +26,22 @@ var Grid = Fluxxor.createStore({
   },
 
   change: function(value) {
-    if (value.rasterSize) {
-      this.state = this.state.merge({pattern:[]});
+    if (value.rasterSize || value.type) {
+      this.state = this.state.mergeDeep({pattern: []});
     }
-    this.state = this.state.merge(value);
     this.undoStack = this.undoStack.push(this.state);
+    this.state = this.state.mergeDeep(value);
+    console.log(this.state.toJS());
     this.redoStack = Immutable.Vector();
     this.emit('change');
   },
 
   preview: function(value) {
+    console.log('preview');
     if (value.rasterSize) {
-      this.state = this.state.merge({pattern:[]});
+      this.state = this.state.mergeDeep({pattern: []});
     }
-    this.state = this.state.merge(value);
+    this.state = this.state.mergeDeep(value);
     this.emit('change');
   },
 
@@ -51,11 +53,10 @@ var Grid = Fluxxor.createStore({
     if (!this.undoStack.length) {
       return
     }
-    var p = this.undoStack.last();
-    this.redoStack = this.redoStack.push(p);
+    this.redoStack = this.redoStack.push(this.state);
+    this.state = this.undoStack.last() || this.state;
     this.undoStack = this.undoStack.pop();
-    this.state = p;
-
+    console.log(this.state.toJS());
     this.emit("change");
   },
 
@@ -63,11 +64,10 @@ var Grid = Fluxxor.createStore({
     if (!this.redoStack.length) {
       return
     }
-    var p = this.undoStack.last();
-    this.undoStack = this.undoStack.push(p);
+    this.undoStack = this.undoStack.push(this.state);
+    this.state = this.redoStack.last() || this.state;
     this.redoStack = this.redoStack.pop();
-    this.state = p;
-
+    console.log(this.state.toJS());
     this.emit("change");
   }
 
