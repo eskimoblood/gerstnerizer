@@ -55,14 +55,24 @@ var Example = React.createClass({
     for (var i = 0; i < this.state.pattern.length; i++) {
       var points = this.scale(this.state.pattern[i]);
       for (var j = 0; j < this.patternSetting[this.state.type].c; j++) {
-        var tr = 'rotate(' + (this.patternSetting[this.state.type].d * j + t) + ' ' + (c.x) + ' ' + (c.y) + ')';
+
+        var er = 2 * (c.x);
+        var tr = 'rotate(' + (this.patternSetting[this.state.type].d * j + t) + ' ' + (c.x) + ' ' + (c.y) + ') translate(' + er + ') scale(-1, 1) ';
         lines.push(<line transform={tr}
         x1={c.x + points[0].x - p.x}
         y1={c.y + points[0].y - p.y}
         x2={c.x + points[1].x - p.x}
-        y2={c.y + points[1].y - p.y} />)
+        y2={c.y + points[1].y - p.y} />);
+
+        var tr = ' rotate(' + (this.patternSetting[this.state.type].d * j + t) + ' ' + (c.x) + ' ' + (c.y) + ')';
+        lines.push(<line transform={tr}
+        x1={c.x + points[0].x - p.x}
+        y1={c.y + points[0].y - p.y}
+        x2={c.x + points[1].x - p.x}
+        y2={c.y + points[1].y - p.y} />);
       }
     }
+
     return lines
   },
 
