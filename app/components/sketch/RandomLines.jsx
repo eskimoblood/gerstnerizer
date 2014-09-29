@@ -16,7 +16,7 @@ var FeelLucky = React.createClass({
 
   generateLines: function() {
     var lines = [];
-    var l = _.random(3, 20);
+    var l = _.random(1,5);
     var pattern = this.props.grid;
     for (var i = 0; i < l; i++) {
       var p1 = pattern[_.random(pattern.length-1)];
