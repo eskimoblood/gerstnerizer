@@ -10,6 +10,7 @@ var RandomLines = require('./RandomLines');
 var _ = require('lodash');
 var geom = require('../../geom/index');
 var Lines = require('./Lines');
+var Slider = require("../Slider");
 var cx = require('react/addons').addons.classSet;
 
 var Sketch = React.createClass({
@@ -31,7 +32,7 @@ var Sketch = React.createClass({
       center: grid,
       grid: geom.sketchRaster[type](vertices, state.rasterSize),
       lines: state.pattern
-    }
+    };
   },
 
   render: function() {
@@ -39,11 +40,13 @@ var Sketch = React.createClass({
     if (this.state.type === 'hex') {
       translate = 'translate(-75, -45)';
     }
+    var step = this.state.type === 'hex' ? 2 : 1;
 
     var classes = cx({
       sketch: true,
       preview: this.state.preview
     });
+    /* jshint ignore:start */
     return <div>
       <svg className={classes} onMouseDown={this.startLine} onMouseUp={this.endLine} onMouseMove={this.updatePreview} onClick={this.endPreview} >
         <g transform={translate} >
@@ -60,9 +63,11 @@ var Sketch = React.createClass({
 
         </g>
       </svg>
+      <Slider type="rasterSize" min="2" max="20" step={step}/>
       <button onClick={this.clear}>Clear</button>
       <RandomLines grid={this.state.grid}/>
-    </div>
+    </div>;
+    /* jshint ignore:end */
   },
 
   getOffset: function(e) {
@@ -117,7 +122,7 @@ var Sketch = React.createClass({
 
     return lines.filter(function(line) {
       return geom.distanceToLine(offset.x, offset.y, line[0].x, line[0].y, line[1].x, line[1].y) > 5;
-    }, this)
+    }, this);
   }
 
 });

@@ -9,7 +9,7 @@ var FluxChildMixin = Fluxxor.FluxChildMixin(React);
 var StoreWatchMixin = Fluxxor.StoreWatchMixin;
 
 
-Slider = React.createClass({
+var Slider = React.createClass({
 
   mixins: [FluxChildMixin, StoreWatchMixin('Grid')],
 
@@ -19,8 +19,8 @@ Slider = React.createClass({
   },
 
   render: function() {
-    console.log(this.state.value);
     var className = 'slider align-center glyph-icon flaticon-' + this.props.type;
+    /* jshint ignore:start */
     return <div className={className}>
       <input
       min={this.props.min}
@@ -32,12 +32,13 @@ Slider = React.createClass({
       defaultValue={this.state.value}/>
       <span>{this.state.value}</span>
     </div>
+    /* jshint ignore:end */
   },
 
   onChange: function(isPreview, e) {
     var value = {};
-    console.log(isPreview);
-    value[this.props.type] = parseFloat(e.target.value);
+
+    value[this.props.type] = parseFloat(e.target.value) + (this.props.unit || '');
     this.getFlux().actions.changeSettings(value, isPreview);
   }
 });

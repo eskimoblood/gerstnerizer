@@ -17,27 +17,42 @@
   margin-left: 20px;
 }
 
-.flaticon-hex:before {
+.flaticon-rasterSize:before {
   content: "\e000";
 }
 
-.flaticon-size:before {
+.flaticon-hex:before {
   content: "\e001";
 }
 
-.flaticon-rows:before {
+.flaticon-size:before {
   content: "\e002";
 }
 
-.flaticon-columns:before {
-  content: "\e002";
-}
-
-.flaticon-rect:before {
+.flaticon-peace1:before {
   content: "\e003";
 }
 
-.flaticon-triangle:before {
+.flaticon-strokeWidth:before {
   content: "\e004";
 }
 
+.flaticon-rows:before {
+  content: "\e005";
+}
+
+.flaticon-rect:before {
+  content: "\e006";
+}
+
+.flaticon-subtract1:before {
+  content: "\e007";
+}
+
+.flaticon-triangle:before {
+  content: "\e008";
+}
+
+.flaticon-columns:before {
+  content: "\e005";
+}

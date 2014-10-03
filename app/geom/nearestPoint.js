@@ -11,6 +11,6 @@ module.exports = function(points, offset) {
     }
   });
 
-  return point
+  return point;
 
 };
