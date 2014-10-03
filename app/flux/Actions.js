@@ -1,3 +1,5 @@
+var jsonp = require('jsonp');
+
 module.exports = {
   changeSettings: function(value, isPreview) {
     this.dispatch((isPreview ? 'SETTING_PREVIEW' : 'SETTING_CHANGED'), value);
@@ -11,5 +13,19 @@ module.exports = {
 
   setPattern: function(pattern) {
     this.dispatch('SETTING_CHANGED', {pattern: pattern});
+  },
+
+  loadColors: function(value) {
+    var url = 'http://www.colourlovers.com/api/palettes?format=json&numResults=24&keywords=' + value;
+    this.dispatch('LOADING_COLORS');
+    jsonp(url, {param: 'jsonCallback'}, function(err, response) {
+      if (err) {
+        return;
+      }
+      this.dispatch('COLORS_CHANGED', response.map(function(palette) {
+        return palette.colors;
+      }));
+    }.bind(this));
   }
-}
+};
+

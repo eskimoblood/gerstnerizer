@@ -22,6 +22,7 @@ var TypeSelector = React.createClass({
   },
 
   render: function() {
+    /* jshint ignore:start */
     return <div className="type-selector row">
       {['triangle', 'rect', 'hex'].map(function(i) {
         var className = 'glyph-icon flaticon-' + i;
@@ -31,6 +32,7 @@ var TypeSelector = React.createClass({
         return <div onClick={this.onClick.bind(null, i)} data-type="hex" className={className} key={i}></div>
       }, this)}
     </div>
+    /* jshint ignore:end */
   },
 
   onClick: function(type) {

@@ -14,5 +14,5 @@ module.exports = function splitLines(line, steps) {
       y: startY + stepsY * i
     });
   }
-  return points
+  return points;
 };

@@ -6,16 +6,31 @@ var React = require('react');
 var Fluxxor = require("fluxxor");
 var FluxChildMixin = Fluxxor.FluxChildMixin(React);
 var StoreWatchMixin = Fluxxor.StoreWatchMixin;
-
 var geom = require('../geom');
+var _ = require('lodash');
+var perlin = require('perlin-noise');
+var keymaster = require('keymaster');
 
 var Example = React.createClass({
 
-  mixins: [FluxChildMixin, StoreWatchMixin("Grid")],
+  mixins: [FluxChildMixin, StoreWatchMixin("Grid", 'Colors')],
 
   getStateFromFlux: function() {
-    var flux = this.getFlux();
-    return flux.store("Grid").getState();
+    return this.getFlux().store("Grid").getState();
+  },
+
+  componentDidMount: function() {
+    keymaster('ctrl+shift+s, ⌘+⇧+s', this.saveSvg);
+  },
+
+  saveSvg: function() {
+
+    var url = "data:image/svg+xml;utf8," + encodeURIComponent(this.getDOMNode().innerHTML);
+
+    var link = document.createElement("a");
+    link.download = 'pattern';
+    link.href = url;
+    link.click();
   },
 
   patternSetting: {
@@ -40,10 +55,11 @@ var Example = React.createClass({
         x: p.x * scl,
         y: p.y * scl
       };
-    })
+    });
   },
 
-  getPattern: function(c, p) {
+  getPattern: function(c, p, noise, cnt) {
+
     if (!this.state.pattern) {
       return;
     }
@@ -54,41 +70,61 @@ var Example = React.createClass({
     var lines = [];
     for (var i = 0; i < this.state.pattern.length; i++) {
       var points = this.scale(this.state.pattern[i]);
+      var p1 = {x: c.x + points[0].x - p.x, y: c.y + points[0].y - p.y};
+      var p2 = {x: c.x + points[1].x - p.x, y: c.y + points[1].y - p.y};
+
       for (var j = 0; j < this.patternSetting[this.state.type].c; j++) {
 
-        var er = 2 * (c.x);
-        var tr = 'rotate(' + (this.patternSetting[this.state.type].d * j + t) + ' ' + (c.x) + ' ' + (c.y) + ') translate(' + er + ') scale(-1, 1) ';
-        lines.push(<line transform={tr}
-        x1={c.x + points[0].x - p.x}
-        y1={c.y + points[0].y - p.y}
-        x2={c.x + points[1].x - p.x}
-        y2={c.y + points[1].y - p.y} />);
+        var stroke = this.state.colors ? this.state.colors[Math.floor((this.state.colors.length - 1) * noise[(cnt * (i + 1 + j ) ) % noise.length])] : '';
+        var rotation = this.patternSetting[this.state.type].d * j + t;
 
-        var tr = ' rotate(' + (this.patternSetting[this.state.type].d * j + t) + ' ' + (c.x) + ' ' + (c.y) + ')';
-        lines.push(<line transform={tr}
-        x1={c.x + points[0].x - p.x}
-        y1={c.y + points[0].y - p.y}
-        x2={c.x + points[1].x - p.x}
-        y2={c.y + points[1].y - p.y} />);
+        lines.push(
+          this.line(p1, p2, c, rotation, stroke),
+          this.line(p1, p2, c, rotation, stroke, true)
+        );
+
       }
     }
 
-    return lines
+    return lines;
+  },
+
+  line: function(p1, p2, center, rotation, stroke, isMirrored) {
+    var tr = 'rotate(' + rotation + ' ' + (center.x) + ' ' + (center.y) + ')';
+    if (isMirrored) {
+      tr += 'translate(' + 2 * (center.x) + ') scale(-1, 1)';
+    }
+    /* jshint ignore:start */
+    return <line
+    transform={tr}
+    stroke={stroke}
+    strokeWidth={this.state.strokeWidth}
+    strokeOpacity={this.state.opacity}
+    strokeLinecap="round"
+    x1={p1.x}
+    y1={p1.y}
+    x2={p2.x}
+    y2={p2.y} />
+    /* jshint ignore:end */
   },
 
   grid: function() {
+    var noise = perlin.generatePerlinNoise(20, 20, {octaveCount: 5,amplitude: 5});
     var type = this.state.type;
     var gridData = geom.grid[type](this.state);
     return gridData
       .map(function(c, i) {
+        /* jshint ignore:start */
         return <g key={type + '_' + i}>
           <circle cx={c.x} cy={c.y} r="1"/>
-          {this.getPattern(c, gridData[0])}
+          {this.getPattern(c, gridData[0], noise, i + 1)}
         </g>
+        /* jshint ignore:end */
       }, this);
   },
 
   render: function() {
+    /* jshint ignore:start */
     return <div className="row">
       <svg>
         <g className="grid">
@@ -96,6 +132,7 @@ var Example = React.createClass({
         </g>
       </svg>
     </div>;
+    /* jshint ignore:end */
   }
 });
 

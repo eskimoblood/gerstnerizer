@@ -3,7 +3,7 @@ input[type=range] {
   -webkit-appearance: none;
   background-color: #989898;
   border-bottom: solid 1px #E3E3E3;
-  width: 200px;
+  width: 160px;
   height: 2px;
   border-radius: 3px;
   position: relative;
@@ -51,9 +51,29 @@ button {
   padding: 5px 12px;
 }
 
-button:active{
+button:active {
   background: linear-gradient(#FAFAFA 20%, #e5e5e5);
 }
-button:focus{
+
+button:focus {
   outline: 0;
 }
+
+.slider.flaticon-rasterSize:before {
+  display: inline-block;
+  transform: rotate(90deg) translate(-2px, -2px);
+  font-size: 15px;
+  margin-right: 8px;
+}
+
+.slider.flaticon-opacity:before {
+  content: '⍺';
+  font-size: 18px;
+  transform: translate(0px, -4px);
+  margin-right: 12px;
+}
+
+.slider.flaticon-strokeWidth:before {
+  margin-right: 11px;
+}
+

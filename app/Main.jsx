@@ -12,6 +12,7 @@ var Slider = require("./components/Slider");
 var Grid = require("./components/Grid");
 var Sketch = require("./components/sketch/Sketch");
 var TypeSelector = require('./components/TypeSelector');
+var ColorSelector = require('./components/ColorSelector');
 
 var Application = React.createClass({
 
@@ -38,27 +39,38 @@ var Application = React.createClass({
   },
 
   componentWillUnmount: function() {
-    keymaster.unbind('esc', this.onClose)
+    keymaster.unbind('esc', this.onClose);
   },
 
   render: function() {
     var step = this.state.type === 'hex' ? 2 : 1;
+    /* jshint ignore:start */
     return <div className="row" onKeyDown={this.keyDown}>
       <div className="sidebar">
+        <h3>Grid</h3>
         <Slider type="columns" min="0" max="40"/>
         <Slider type="rows" min="0" max="40"/>
         <Slider type="size" min="0" max="200"/>
+        <h3>Lines</h3>
+        <Slider type="strokeWidth" min="1" max="20" unit="px"/>
+        <Slider type="opacity" min="0" max="1" unit="" step="0.01"/>
+        <ColorSelector />
+        <h3>Pattern</h3>
         <TypeSelector />
         <Sketch />
-        <Slider type="rasterSize" min="2" max="20" step={step}/>
         <dl>
           <dt>alt+click</dt>
           <dd>delete line</dd>
+          <dt>⌘+⇧+s</dt>
+          <dd>save svg</dd>
         </dl>
+
+        <a href="http://eskimoblood.github.io/gerstnerizer/"> Code on github</a>
       </div>
       <Grid />
 
     </div>
+    /* jshint ignore:end */
   }
 
 });

@@ -10,7 +10,9 @@ var Grid = Fluxxor.createStore({
       columns: 10,
       size: 100,
       rasterSize: 10,
+      strokeWidth: 1,
       type: 'rect',
+      opacity: 1,
       pattern: []
     });
 
@@ -30,7 +32,11 @@ var Grid = Fluxxor.createStore({
       this.state = this.state.mergeDeep({pattern: []});
     }
     this.undoStack = this.undoStack.push(this.state);
+    console.log(value);
+    console.log(this.state.toJS());
     this.state = this.state.mergeDeep(value);
+    console.log(this.state.toJS());
+
     console.log(this.state.toJS());
     this.redoStack = Immutable.Vector();
     this.emit('change');
@@ -51,7 +57,7 @@ var Grid = Fluxxor.createStore({
 
   undo: function() {
     if (!this.undoStack.length) {
-      return
+      return;
     }
     this.redoStack = this.redoStack.push(this.state);
     this.state = this.undoStack.last() || this.state;
@@ -62,7 +68,7 @@ var Grid = Fluxxor.createStore({
 
   redo: function() {
     if (!this.redoStack.length) {
-      return
+      return;
     }
     this.undoStack = this.undoStack.push(this.state);
     this.state = this.redoStack.last() || this.state;

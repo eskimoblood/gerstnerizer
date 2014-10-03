@@ -11,7 +11,7 @@ module.exports = function(x, y, x1, y1, x2, y2) {
 
   var xx, yy;
 
-  if (param < 0 || (x1 == x2 && y1 == y2)) {
+  if (param < 0 || (x1 === x2 && y1 === y2)) {
     xx = x1;
     yy = y1;
   }
@@ -28,4 +28,4 @@ module.exports = function(x, y, x1, y1, x2, y2) {
   var dy = y - yy;
   return Math.sqrt(dx * dx + dy * dy);
 
-}
+};

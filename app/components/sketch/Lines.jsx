@@ -5,6 +5,7 @@ var React = require('react');
 var Example = React.createClass({
 
   render: function() {
+    /* jshint ignore:start */
     return <g>
     {this.props.preview.state ? <line
     x1={this.props.preview.s.x}
@@ -18,6 +19,7 @@ var Example = React.createClass({
       x2={line[1].x}
       y2={line[1].y} />
     })}</g>
+    /* jshint ignore:end */
   }
 });
 
