@@ -65,7 +65,7 @@ var Application = React.createClass({
           <dd>save svg</dd>
         </dl>
 
-        <a href="http://eskimoblood.github.io/gerstnerizer/"> Code on github</a>
+        <a href="https://github.com/eskimoblood/gerstnerizer"> Code on github</a>
       </div>
       <Grid />
 
