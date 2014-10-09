@@ -41,6 +41,7 @@
     "style-loader": "^0.6.4",
     "stylus-loader": "^0.4.0",
     "tinygradient": "^0.2.0",
+    "traceur-loader": "^0.5.2",
     "webpack": "^1.3.2-beta9",
     "webpack-dev-server": "^1.4.7"
   },
