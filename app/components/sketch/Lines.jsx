@@ -18,7 +18,7 @@ var Example = React.createClass({
       y1={line[0].y}
       x2={line[1].x}
       y2={line[1].y} />
-    })}</g>
+    })}</g>;
     /* jshint ignore:end */
   }
 });

@@ -15,8 +15,16 @@ module.exports = {
     this.dispatch('SETTING_CHANGED', {pattern: pattern});
   },
 
+  addLine: function(line) {
+    this.dispatch('ADD_LINE', line);
+  },
+
+  removeLines: function(lines) {
+    this.dispatch('REMOVE_LINES', lines);
+  },
+
   loadColors: function(value) {
-    var url = 'http://www.colourlovers.com/api/palettes?format=json&numResults=24&keywords=' + value;
+    var url = 'http://www.colourlovers.com/api/palettes?format=json&numResults=39&keywords=' + value;
     this.dispatch('LOADING_COLORS');
     jsonp(url, {param: 'jsonCallback'}, function(err, response) {
       if (err) {

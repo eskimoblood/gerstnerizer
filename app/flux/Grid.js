@@ -13,7 +13,7 @@ var Grid = Fluxxor.createStore({
       strokeWidth: 1,
       type: 'rect',
       opacity: 1,
-      pattern: []
+      pattern: Immutable.Vector()
     });
 
     this.undoStack = Immutable.Vector();
@@ -22,6 +22,8 @@ var Grid = Fluxxor.createStore({
     this.bindActions(
       'SETTING_CHANGED', this.change,
       'SETTING_PREVIEW', this.preview,
+      'ADD_LINE', this.addLine,
+      'REMOVE_LINES', this.removeLines,
       'SETTING_UNDO', this.undo,
       'SETTING_REDO', this.redo
     );
@@ -29,51 +31,70 @@ var Grid = Fluxxor.createStore({
 
   change: function(value) {
     if (value.rasterSize || value.type) {
-      this.state = this.state.mergeDeep({pattern: []});
+      this.state = this.state.set('pattern', Immutable.Vector());
     }
-    this.undoStack = this.undoStack.push(this.state);
-    console.log(value);
-    console.log(this.state.toJS());
-    this.state = this.state.mergeDeep(value);
-    console.log(this.state.toJS());
-
-    console.log(this.state.toJS());
+    if (this.lastState) {
+      this.undoStack = this.undoStack.push(this.lastState);
+      this.lastState = null;
+    } else {
+      this.undoStack = this.undoStack.push(this.state);
+    }
+    this.state = this.state.merge(Immutable.fromJS(value));
     this.redoStack = Immutable.Vector();
     this.emit('change');
   },
 
   preview: function(value) {
-    console.log('preview');
     if (value.rasterSize) {
-      this.state = this.state.mergeDeep({pattern: []});
+      this.state = this.state.set('pattern', Immutable.Vector());
     }
-    this.state = this.state.mergeDeep(value);
+    if (!this.lastState) {
+      this.lastState = this.state;
+    }
+    this.state = this.state.merge(value);
+    this.emit('change');
+  },
+
+  addLine: function(line) {
+    this.undoStack = this.undoStack.push(this.state);
+    this.state = this.state.updateIn(['pattern'], function(vect) {
+      return vect.push(line);
+    });
+    this.redoStack = Immutable.Vector();
+    this.emit('change');
+  },
+
+  removeLines: function(lines) {
+    this.undoStack = this.undoStack.push(this.state);
+    this.state = this.state.set('pattern', Immutable.fromJS(lines));
+    this.redoStack = Immutable.Vector();
     this.emit('change');
   },
 
   getState: function() {
+    console.log(this.state.toJS().columns);
     return this.state.toJS();
   },
 
   undo: function() {
+    console.log('undo');
     if (!this.undoStack.length) {
       return;
     }
     this.redoStack = this.redoStack.push(this.state);
-    this.state = this.undoStack.last() || this.state;
+    this.state = this.undoStack.last();
     this.undoStack = this.undoStack.pop();
-    console.log(this.state.toJS());
     this.emit("change");
   },
 
   redo: function() {
+    console.log('redo');
     if (!this.redoStack.length) {
       return;
     }
     this.undoStack = this.undoStack.push(this.state);
     this.state = this.redoStack.last() || this.state;
     this.redoStack = this.redoStack.pop();
-    console.log(this.state.toJS());
     this.emit("change");
   }
 

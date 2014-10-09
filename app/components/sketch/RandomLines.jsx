@@ -12,7 +12,7 @@ var FeelLucky = React.createClass({
 
   render: function() {
     /* jshint ignore:start */
-    return <button onClick={this.generateLines}>Random Lines</button>
+    return <button onClick={this.generateLines}>Random Lines</button>;
     /* jshint ignore:end */
   },
 

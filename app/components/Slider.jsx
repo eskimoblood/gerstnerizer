@@ -23,22 +23,21 @@ var Slider = React.createClass({
     /* jshint ignore:start */
     return <div className={className}>
       <input
-      min={this.props.min}
-      max={this.props.max}
-      type="range"
-      step={this.props.step || 1}
-      onChange={this.onChange.bind(this, true)}
-      onMouseUp={this.onChange.bind(this, false)}
-      defaultValue={this.state.value}/>
+        min={this.props.min}
+        max={this.props.max}
+        type="range"
+        step={this.props.step || 1}
+        onChange={this.onChange.bind(this, true)}
+        onMouseUp={this.onChange.bind(this, false)}
+        value={this.state.value}/>
       <span>{this.state.value}</span>
-    </div>
+    </div>;
     /* jshint ignore:end */
   },
 
   onChange: function(isPreview, e) {
     var value = {};
-
-    value[this.props.type] = parseFloat(e.target.value) + (this.props.unit || '');
+    value[this.props.type] = parseFloat(e.target.value);
     this.getFlux().actions.changeSettings(value, isPreview);
   }
 });

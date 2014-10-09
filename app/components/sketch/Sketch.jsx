@@ -105,23 +105,24 @@ var Sketch = React.createClass({
   endLine: function(e) {
     var lines = this.state.lines;
     if (e.altKey) {
-      lines = this.removeLine(e, lines);
+      var line = this.removeLine(e, lines);
+      this.getFlux().actions.removeLines(line);
+      return;
     } else {
       var endPoint = geom.nearestPoint(this.state.grid, this.getOffset(e));
-      lines.push([this.state.startPoint, endPoint]);
     }
-    this.getFlux().actions.setPattern(lines);
+    this.getFlux().actions.addLine([this.state.startPoint, endPoint]);
   },
 
   clear: function() {
-    this.getFlux().actions.setPattern([]);
+    this.getFlux().actions.removeLines([]);
   },
 
   removeLine: function(e, lines) {
     var offset = this.getOffset(e);
 
     return lines.filter(function(line) {
-      return geom.distanceToLine(offset.x, offset.y, line[0].x, line[0].y, line[1].x, line[1].y) > 5;
+      return geom.distanceToLine(offset.x, offset.y, line[0].x, line[0].y, line[1].x, line[1].y) > 3;
     }, this);
   }
 
