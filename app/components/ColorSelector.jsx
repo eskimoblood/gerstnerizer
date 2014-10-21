@@ -85,7 +85,7 @@ var Example = React.createClass({
   setPalette: function(palette) {
     var map = palette.map(c => '#' + c);
     this.setState({selectedPalette: palette});
-    var grad = tinygradient(map).hsv(50, 'short').map(c => c.toHexString());
+    var grad = tinygradient(map).hsv(30, 'short').map(c => c.toHexString());
     this.getFlux().actions.changeSettings({colors: grad});
   },
 

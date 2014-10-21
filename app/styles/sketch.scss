@@ -7,8 +7,10 @@
   fill: #9AC0BD;
 }
 
-.sketch line {
+.sketch line,
+.sketch path {
   stroke: #7dccd9;
+  fill: none;
 }
 
 .sketch.preview{

@@ -11,7 +11,7 @@ module.exports = function(options) {
   };
   var loaders = {
     "coffee": "coffee-redux-loader",
-    "jsx": options.hotComponents ? ['traceur', "react-hot-loader", "jsx-loader?harmony"] : "jsx-loader",
+    "jsx": options.hotComponents ? ['traceur', "react-hot-loader", "jsx-loader?harmony"] :['traceur', "jsx-loader"],
     "json": "json-loader",
     "json5": "json5-loader",
     "txt": "raw-loader",
@@ -30,7 +30,7 @@ module.exports = function(options) {
     "scss": "css-loader!sass-loader",
   }
   var additionalLoaders = [
-    {test: /some-reg-exp$/, loader: "any-loader"}
+    {test: /\.js/, loader: "traceur"}
   ];
   var alias = {};
   var aliasLoader = {};

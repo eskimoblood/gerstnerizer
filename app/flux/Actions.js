@@ -1,26 +1,21 @@
 var jsonp = require('jsonp');
 
 module.exports = {
+
   changeSettings: function(value, isPreview) {
     this.dispatch((isPreview ? 'SETTING_PREVIEW' : 'SETTING_CHANGED'), value);
   },
+
   undo: function() {
     this.dispatch('SETTING_UNDO');
   },
+
   redo: function() {
     this.dispatch('SETTING_REDO');
   },
 
   setPattern: function(pattern) {
     this.dispatch('SETTING_CHANGED', {pattern: pattern});
-  },
-
-  addLine: function(line) {
-    this.dispatch('ADD_LINE', line);
-  },
-
-  removeLines: function(lines) {
-    this.dispatch('REMOVE_LINES', lines);
   },
 
   loadColors: function(value) {

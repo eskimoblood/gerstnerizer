@@ -46,8 +46,9 @@ var Application = React.createClass({
         <Slider type="rows" min="1" max="40"/>
         <Slider type="size" min="1" max="200"/>
         <h3>Lines</h3>
-        <Slider type="strokeWidth" min="1" max="20"/>
+        <Slider type="strokeWidth" min="1" max="5" step="0.1"/>
         <Slider type="opacity" min="0" max="1" step="0.01"/>
+        <Slider type="distortion" min="0" max="200"/>
         <ColorSelector />
         <h3>Pattern</h3>
         <TypeSelector />

@@ -23,7 +23,7 @@ var FeelLucky = React.createClass({
     for (var i = 0; i < l; i++) {
       var p1 = pattern[_.random(pattern.length - 1)];
       var p2 = pattern[_.random(pattern.length - 1)];
-      lines.push([p1, p2]);
+      lines.push({p1: p1, p2: p2});
     }
     this.getFlux().actions.setPattern(lines);
   }
