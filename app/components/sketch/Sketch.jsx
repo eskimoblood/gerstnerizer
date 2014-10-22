@@ -63,29 +63,18 @@ var Sketch = React.createClass({
     ).toProperty(null);
 
     linePreview.onValue((state) => this.setState(state));
-    lines.onValue(this.endLine);
+    lines.onValue(this.addLine);
 
   },
 
   initBezierTool: function() {
     var sub = (p1, p2) => ({x: p1.x - p2.x, y: p1.y - p2.y});
     var add = (p1, p2) => ({x: p1.x + p2.x, y: p1.y + p2.y});
-    var findC = (line, point) => line.p1.x === point.x && line.p1.y === point.y ? 'c1' : 'c2';
-    var setMissing = (line, type) => {
-      type = type === 'c1' ? 'c2' : 'c1';
-      if (!line[type]) {
-        line[type] = type === 'c1' ? line.p2 : line.p1;
-      }
-    };
-    var setC = (line, startPoint, offset) => {
-      var type = findC(line, startPoint);
-      line[type] = add(offset, startPoint);
-      setMissing(line, type);
-    };
+
 
     var findLine = this.mouseUp
       .filter(e => e.metaKey)
-      .map(this.getOffset)
+      .map(this.getMousePosition)
       .map(this.findLine);
 
     findLine
@@ -105,38 +94,46 @@ var Sketch = React.createClass({
       this.forceUpdate();
     });
 
-    var startBezier = selectedLine.flatMapLatest(line =>
+    var startBezier = selectedLine.flatMapLatest(() =>
         this.mouseDown
-          .map(e => {
-            var offset = this.getOffset(e);
-            console.log('mouseDown');
-            line = _.find(this.state.lines, 'selected');
+          .filter(e => !e.altKey)
+          .map(this.getMousePosition)
+          .map(p => {
+            var line = _.find(this.state.lines, 'selected');
+            var distToC1 = geom.distanceToPoint(line.c1, p);
+            var distToC2 = geom.distanceToPoint(line.c2, p);
+            var type = distToC1 > distToC2 ? 'c2' : 'c1';
+
             return {
-              point: geom.nearestPoint([line.p1, line.p2], this.getOffset(e)),
+              dist: Math.min(distToC1, distToC2),
+              type: type,
               line: line,
-              offset: offset
+              offset: sub(p, line[type])
             }
           })
+          .filter(o => o.dist < 5)
     );
 
     var setBezier = startBezier.flatMapLatest(arg =>
         this.mouseMove
-          .map(this.getOffset)
-          .map(o => sub(o, arg.offset))
-          .map(o => ({offset: o, line: arg.line, startPoint: arg.point}))
+          .map(this.getMousePosition)
+          .map(p => sub(p, arg.offset))
+          .map(p => _.extend({p: p}, arg))
           .takeUntil(this.mouseUp)
           .mapEnd(null)
     );
 
     setBezier.onValue(e => {
-      if (!e)return;
-      var type = findC(e.line, e.startPoint);
-      e.line[type] = add(e.offset, e.startPoint);
-      setMissing(e.line, type);
+      if (!e) {
+        return;
+      }
+      e.line[e.type] = e.p;
       this.forceUpdate();
     });
 
-    startBezier.flatMapLatest(e => this.mouseUp).onValue(e => this.change(this.state.lines))
+    startBezier.flatMapLatest(e => this.mouseUp).onValue(e => {
+      this.change(this.state.lines)
+    })
 
   },
 
@@ -184,7 +181,7 @@ var Sketch = React.createClass({
     /* jshint ignore:end */
   },
 
-  getOffset: function(e) {
+  getMousePosition: function(e) {
     var node = this.getDOMNode();
     var x = e.clientX - node.offsetLeft;
     var y = e.clientY - node.offsetTop;
@@ -197,7 +194,7 @@ var Sketch = React.createClass({
   },
 
   getNearestPoint: function(e) {
-    return geom.nearestPoint(this.state.grid, this.getOffset(e));
+    return geom.nearestPoint(this.state.grid, this.getMousePosition(e));
   },
 
   startLine: function(e) {
@@ -216,8 +213,13 @@ var Sketch = React.createClass({
     this.getFlux().actions.changeSettings({pattern: lines});
   },
 
-  endLine: function(state) {
-    this.state.lines.push({p1: state.preview.start, p2: state.preview.end});
+  addLine: function(state) {
+    this.state.lines.push({
+      p1: state.preview.start,
+      p2: state.preview.end,
+      c1: state.preview.start,
+      c2: state.preview.end
+    });
     this.change(this.state.lines);
   },
 
@@ -226,7 +228,7 @@ var Sketch = React.createClass({
   },
 
   removeLine: function(e) {
-    var offset = this.getOffset(e);
+    var offset = this.getMousePosition(e);
 
     var lines = this.state.lines.filter(function(line) {
       return geom.distanceToLine(offset.x, offset.y, line) > 3;
