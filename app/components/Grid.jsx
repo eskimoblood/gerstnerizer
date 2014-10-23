@@ -74,17 +74,17 @@ var Example = React.createClass({
       for (var j = 0; j < this.patternSetting[this.state.type].c; j++) {
 
         var n = noise[(cnt * (i + 1 + j ) ) % noise.length];
-        if (n < .7) {
-          var n1 = noise[(cnt * (i + 1 * j ) ) % noise.length];
+        //if (n < .7) {TODO add slider for this
+        var n1 = noise[(cnt * (i + 1 * j ) ) % noise.length];
 
-          var stroke = colors ? colors[Math.floor((colors.length) * n1)] : '';
-          var rotation = this.patternSetting[this.state.type].d * j + t;
+        var stroke = colors ? colors[Math.floor((colors.length) * n1)] : '';
+        var rotation = this.patternSetting[this.state.type].d * j + t;
 
-          lines.push(
-            this.path(line, c, rotation, stroke, n),
-            this.path(line, c, rotation, stroke, n, true)
-          );
-        }
+        lines.push(
+          this.path(line, c, rotation, stroke, n),
+          this.path(line, c, rotation, stroke, n, true)
+        );
+        //}
 
       }
     }
@@ -112,7 +112,7 @@ var Example = React.createClass({
   },
 
   randomPoint: function(p, noise) {
-    var angle = noise * Math.PI * 2;
+    var angle = noise * Math.PI * 4;
     var rad = noise * this.state.distortion;
     return {x: p.x + Math.cos(angle) * rad, y: p.y + Math.sin(angle) * rad};
   },

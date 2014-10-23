@@ -1,5 +1,5 @@
 var distanceToPoint = require('./distanceToPoint');
-module.exports = function(points, offset) {
+module.exports = function nearestPoint(points, offset) {
 
   var dist = Number.MAX_SAFE_INTEGER;
   var point;
@@ -12,6 +12,6 @@ module.exports = function(points, offset) {
     }
   });
 
-  return point;
+  return {point: point, dist: dist};
 
 };

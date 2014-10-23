@@ -2,6 +2,30 @@
 
 var React = require('react');
 
+var BezierHandle = React.createClass({
+  render: function() {
+    var {p1, p2, c1,c2, selected} = this.props.line;
+    if (!selected) {return null}
+    return <g>
+      <line
+        strokeWidth="0.5"
+        x1={p1.x}
+        y1={p1.y}
+        x2={c1.x}
+        y2={c1.y} />
+      <line
+        strokeWidth="0.5"
+        x1={p2.x}
+        y1={p2.y}
+        x2={c2.x}
+        y2={c2.y} />
+      <circle cx={c1.x} cy={c1.y} r="2"/>
+      <circle cx={c2.x} cy={c2.y} r="2"/>
+    </g>
+
+  }
+})
+
 var Example = React.createClass({
 
   render: function() {
@@ -24,25 +48,8 @@ var Example = React.createClass({
         var {c1, c2} = line;
         var d = ['M', p1.x, p1.y, 'C', c1.x, c1.y, c2.x, c2.y, p2.x, p2.y].join(' ');
         return <g>
-          {!!line.selected ? <g>
-            <line
-              strokeWidth="0.5"
-              x1={p1.x}
-              y1={p1.y}
-              x2={c1.x}
-              y2={c1.y} />
-            <line
-              strokeWidth="0.5"
-              x1={p2.x}
-              y1={p2.y}
-              x2={c2.x}
-              y2={c2.y} />
-            <circle cx={c1.x} cy={c1.y} r="2"/>
-            <circle cx={c2.x} cy={c2.y} r="2"/>
-          </g> : null}
-          <path
-            strokeWidth={line.selected ? 2 : 1}
-            d={d}/>
+          <BezierHandle line={line}/>
+          <path strokeWidth={line.selected ? 2 : 1} d={d}/>
         </g>
       }
       return <line

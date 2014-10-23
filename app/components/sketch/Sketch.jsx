@@ -55,23 +55,26 @@ var Sketch = React.createClass({
       .map(this.getNearestPoint);
 
     var lines = startPoints.flatMapLatest(point =>
-        this.mouseUp.map(this.getNearestPoint).map(pair(point)).take(1)
+        this.mouseUp
+          .map(this.getNearestPoint)
+          .map(pair(point))
+          .take(1)
     );
 
     var linePreview = startPoints.flatMapLatest(point =>
-        this.mouseMove.map(this.getNearestPoint).map(pair(point)).takeUntil(this.mouseUp).mapEnd(null)
+        this.mouseMove
+          .map(this.getNearestPoint)
+          .map(pair(point))
+          .takeUntil(this.mouseUp)
+          .mapEnd(null)
     ).toProperty(null);
 
     linePreview.onValue((state) => this.setState(state));
     lines.onValue(this.addLine);
-
   },
 
   initBezierTool: function() {
     var sub = (p1, p2) => ({x: p1.x - p2.x, y: p1.y - p2.y});
-    var add = (p1, p2) => ({x: p1.x + p2.x, y: p1.y + p2.y});
-
-
     var findLine = this.mouseUp
       .filter(e => e.metaKey)
       .map(this.getMousePosition)
@@ -86,7 +89,6 @@ var Sketch = React.createClass({
       });
 
     var selectedLine = findLine.filter(line => !!line);
-
 
     selectedLine.onValue(line => {
       this.state.lines.forEach(line => line.selected = false);
@@ -116,8 +118,15 @@ var Sketch = React.createClass({
 
     var setBezier = startBezier.flatMapLatest(arg =>
         this.mouseMove
-          .map(this.getMousePosition)
-          .map(p => sub(p, arg.offset))
+          .map(e => {
+            var pos = this.getMousePosition(e);
+            var p = this.getNearestPointAndDist(pos);
+            if (p.dist < 5) {
+              return p.point;
+            } else {
+              return sub(pos, arg.offset);
+            }
+          })
           .map(p => _.extend({p: p}, arg))
           .takeUntil(this.mouseUp)
           .mapEnd(null)
@@ -156,7 +165,7 @@ var Sketch = React.createClass({
 
   render: function() {
     var translate = '';
-    var {type, preview, vertices, grid, lines,startPoint, previewEndPoint} = this.state;
+    var {type, preview, vertices, grid, lines} = this.state;
     if (type === 'hex') {
       translate = 'translate(-75, -45)';
     }
@@ -194,7 +203,11 @@ var Sketch = React.createClass({
   },
 
   getNearestPoint: function(e) {
-    return geom.nearestPoint(this.state.grid, this.getMousePosition(e));
+    return geom.nearestPoint(this.state.grid, this.getMousePosition(e)).point;
+  },
+
+  getNearestPointAndDist: function(pos) {
+    return geom.nearestPoint(this.state.grid, pos);
   },
 
   startLine: function(e) {
