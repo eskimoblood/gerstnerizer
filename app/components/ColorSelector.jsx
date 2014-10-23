@@ -16,7 +16,6 @@ var Example = React.createClass({
 
   getStateFromFlux: function() {
     var state = this.getFlux().store('Colors').getState();
-    console.log(state);
     return {
       colors: state.colors,
       loading: state.loading,
@@ -42,11 +41,10 @@ var Example = React.createClass({
   },
 
   togglePalette: function(state) {
-    setTimeout(function() {
-      this.setState({showPalette: state});
-    }.bind(this), 10);
+    setTimeout(()=> this.setState({showPalette: state}), 10);
   },
 
+  paletteItem: color => <span style={{background: '#' + color}} />,
 
   palettePreview: function() {
     var selectedPalette = this.state.selectedPalette;
@@ -55,9 +53,7 @@ var Example = React.createClass({
     }
     /* jshint ignore:start */
     return <div className="preview" onClick={this.setPalette.bind(this, selectedPalette)}>
-      {selectedPalette.map(function(color) {
-        return <span style={{background: '#' + color}} />;
-      })}
+      {selectedPalette.map(this.paletteItem)}
     </div>;
     /* jshint ignore:end */
   },
@@ -79,9 +75,7 @@ var Example = React.createClass({
     return <ul>
     {this.state.colors.map(function(palette) {
       return <li onClick={this.setPalette.bind(this, palette)} >
-            {palette.map(function(color) {
-              return <span style={{background: '#' + color}} />;
-            })}
+            {palette.map(this.paletteItem)}
       </li>
     }, this)}
     </ul>;
@@ -89,14 +83,9 @@ var Example = React.createClass({
   },
 
   setPalette: function(palette) {
-    console.log(palette);
-    var map = palette.map(function(c) {
-      return '#' + c;
-    });
+    var map = palette.map(c => '#' + c);
     this.setState({selectedPalette: palette});
-    var grad = tinygradient(map).hsv(50, 'short').map(function(c) {
-      return c.toHexString();
-    });
+    var grad = tinygradient(map).hsv(30, 'short').map(c => c.toHexString());
     this.getFlux().actions.changeSettings({colors: grad});
   },
 

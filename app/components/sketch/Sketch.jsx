@@ -1,6 +1,7 @@
 /** @jsx React.DOM */
 
 require('../../styles/sketch.scss');
+require('../../styles/flaticon.css');
 
 var React = require('react');
 var Fluxxor = require("fluxxor");
@@ -13,6 +14,9 @@ var Lines = require('./Lines');
 var Slider = require("../Slider");
 var cx = require('react/addons').addons.classSet;
 
+
+var Bacon = require('baconjs');
+
 var Sketch = React.createClass({
 
   mixins: [FluxChildMixin, StoreWatchMixin("Grid")],
@@ -20,57 +24,173 @@ var Sketch = React.createClass({
   getStateFromFlux: function() {
     var flux = this.getFlux();
     var state = flux.store("Grid").getState();
-    var type = state.type;
+    var {type, pattern, rasterSize} = state;
     var grid = geom.grid[type]({
       columns: 1, rows: 1, size: 200
     });
     var vertices = grid[0].points;
-
     return {
       type: type,
       vertices: vertices,
       center: grid,
-      grid: geom.sketchRaster[type](vertices, state.rasterSize),
-      lines: state.pattern
+      grid: geom.sketchRaster[type](vertices, rasterSize),
+      lines: pattern,
+      preview: null
     };
+  },
+
+
+  initDrawLine: function() {
+    var pair = start => end => {
+      return {
+        preview: {
+          start: start,
+          end: end
+        }
+      }
+    };
+    var startPoints = this.mouseDown
+      .filter(e => !e.altKey && !e.metaKey)
+      .filter(() => !_.find(this.state.lines, 'selected'))
+      .map(this.getNearestPoint);
+
+    var lines = startPoints.flatMapLatest(point =>
+        this.mouseUp
+          .map(this.getNearestPoint)
+          .map(pair(point))
+          .take(1)
+    );
+
+    var linePreview = startPoints.flatMapLatest(point =>
+        this.mouseMove
+          .map(this.getNearestPoint)
+          .map(pair(point))
+          .takeUntil(this.mouseUp)
+          .mapEnd(null)
+    ).toProperty(null);
+
+    linePreview.onValue((state) => this.setState(state));
+    lines.onValue(this.addLine);
+  },
+
+  initBezierTool: function() {
+    var sub = (p1, p2) => ({x: p1.x - p2.x, y: p1.y - p2.y});
+    var findLine = this.mouseUp
+      .filter(e => e.metaKey)
+      .map(this.getMousePosition)
+      .map(this.findLine);
+
+    findLine
+      .filter(line => {
+        return !line
+      }).onValue(() => {
+        this.state.lines.forEach(line => line.selected = false);
+        this.forceUpdate();
+      });
+
+    var selectedLine = findLine.filter(line => !!line);
+
+    selectedLine.onValue(line => {
+      this.state.lines.forEach(line => line.selected = false);
+      line.selected = true;
+      this.forceUpdate();
+    });
+
+    var startBezier = selectedLine.flatMapLatest(() =>
+        this.mouseDown
+          .filter(e => !e.altKey)
+          .map(this.getMousePosition)
+          .map(p => {
+            var line = _.find(this.state.lines, 'selected');
+            var distToC1 = geom.distanceToPoint(line.c1, p);
+            var distToC2 = geom.distanceToPoint(line.c2, p);
+            var type = distToC1 > distToC2 ? 'c2' : 'c1';
+
+            return {
+              dist: Math.min(distToC1, distToC2),
+              type: type,
+              line: line,
+              offset: sub(p, line[type])
+            }
+          })
+          .filter(o => o.dist < 5)
+    );
+
+    var setBezier = startBezier.flatMapLatest(arg =>
+        this.mouseMove
+          .map(e => {
+            var pos = this.getMousePosition(e);
+            var p = this.getNearestPointAndDist(pos);
+            if (p.dist < 5) {
+              return p.point;
+            } else {
+              return sub(pos, arg.offset);
+            }
+          })
+          .map(p => _.extend({p: p}, arg))
+          .takeUntil(this.mouseUp)
+          .mapEnd(null)
+    );
+
+    setBezier.onValue(e => {
+      if (!e) {
+        return;
+      }
+      e.line[e.type] = e.p;
+      this.forceUpdate();
+    });
+
+    startBezier.flatMapLatest(e => this.mouseUp).onValue(e => {
+      this.change(this.state.lines)
+    })
+
+  },
+
+  findLine: function(pos) {
+    return _.find(this.state.lines, (line => geom.distanceToLine(pos.x, pos.y, line) < 3));
+  },
+
+  componentDidMount: function() {
+    this.mouseUp = new Bacon.Bus();
+    this.mouseMove = new Bacon.Bus();
+    this.mouseDown = new Bacon.Bus();
+
+    this.initDrawLine();
+    this.initBezierTool();
+
+    this.mouseUp
+      .filter(e => e.altKey)
+      .onValue(this.removeLine.bind(this));
   },
 
   render: function() {
     var translate = '';
-    if (this.state.type === 'hex') {
+    var {type, preview, vertices, grid, lines} = this.state;
+    if (type === 'hex') {
       translate = 'translate(-75, -45)';
     }
-    var step = this.state.type === 'hex' ? 2 : 1;
-
+    var step = type === 'hex' ? 2 : 1;
     var classes = cx({
       sketch: true,
-      preview: this.state.preview
+      preview: !!preview
     });
     /* jshint ignore:start */
     return <div>
-      <svg className={classes} onMouseDown={this.startLine} onMouseUp={this.endLine} onMouseMove={this.updatePreview} onClick={this.endPreview} >
+      <svg className={classes} onMouseDown={this.startLine} onMouseUp={this.endPreview} onMouseMove={this.updatePreview} >
         <g transform={translate} >
-          <polygon points={this.state.vertices} />
-      {this.state.grid.map(function(c, i) {
-        var key = 'p_' + i;
-        return <circle cx={c.x} cy={c.y} r="1" key={key}/>
-      })}
-          <Lines lines={this.state.lines} preview={{
-            state: this.state.preview,
-            s: this.state.startPoint,
-            e: this.state.previewEndPoint
-          }}/>
-
+          <polygon points={vertices} />
+          {grid.map((c, i) => <circle cx={c.x} cy={c.y} r="1" key={'p_' + i}/>)}
+          <Lines lines={lines} preview={preview}/>
         </g>
       </svg>
       <Slider type="rasterSize" min="2" max="20" step={step}/>
       <button onClick={this.clear}>Clear</button>
-      <RandomLines grid={this.state.grid}/>
+      <RandomLines grid={grid}/>
     </div>;
     /* jshint ignore:end */
   },
 
-  getOffset: function(e) {
+  getMousePosition: function(e) {
     var node = this.getDOMNode();
     var x = e.clientX - node.offsetLeft;
     var y = e.clientY - node.offsetTop;
@@ -81,48 +201,53 @@ var Sketch = React.createClass({
     }
     return {x: x, y: y};
   },
+
+  getNearestPoint: function(e) {
+    return geom.nearestPoint(this.state.grid, this.getMousePosition(e)).point;
+  },
+
+  getNearestPointAndDist: function(pos) {
+    return geom.nearestPoint(this.state.grid, pos);
+  },
+
   startLine: function(e) {
-    if (e.altKey) {
-      return;
-    }
-    this.setState({
-      startPoint: geom.nearestPoint(this.state.grid, this.getOffset(e)),
-      previewEndPoint: geom.nearestPoint(this.state.grid, this.getOffset(e)),
-      preview: true
-    });
+    this.mouseDown.push(e)
   },
 
   updatePreview: function(e) {
-    if (this.state.preview) {
-      this.setState({previewEndPoint: geom.nearestPoint(this.state.grid, this.getOffset(e))});
-    }
+    this.mouseMove.push(e)
   },
 
-  endPreview: function() {
-    this.setState({preview: false});
+  endPreview: function(e) {
+    this.mouseUp.push(e)
   },
 
-  endLine: function(e) {
-    var lines = this.state.lines;
-    if (e.altKey) {
-      lines = this.removeLine(e, lines);
-    } else {
-      var endPoint = geom.nearestPoint(this.state.grid, this.getOffset(e));
-      lines.push([this.state.startPoint, endPoint]);
-    }
-    this.getFlux().actions.setPattern(lines);
+  change: function(lines) {
+    this.getFlux().actions.changeSettings({pattern: lines});
+  },
+
+  addLine: function(state) {
+    this.state.lines.push({
+      p1: state.preview.start,
+      p2: state.preview.end,
+      c1: state.preview.start,
+      c2: state.preview.end
+    });
+    this.change(this.state.lines);
   },
 
   clear: function() {
-    this.getFlux().actions.setPattern([]);
+    this.change([]);
   },
 
-  removeLine: function(e, lines) {
-    var offset = this.getOffset(e);
+  removeLine: function(e) {
+    var offset = this.getMousePosition(e);
 
-    return lines.filter(function(line) {
-      return geom.distanceToLine(offset.x, offset.y, line[0].x, line[0].y, line[1].x, line[1].y) > 5;
+    var lines = this.state.lines.filter(function(line) {
+      return geom.distanceToLine(offset.x, offset.y, line) > 3;
     }, this);
+
+    this.change(lines);
   }
 
 });

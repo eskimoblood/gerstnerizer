@@ -20,6 +20,7 @@
   "author": "Tobias Koppers @sokra",
   "license": "MIT",
   "dependencies": {
+    "baconjs": "^0.7.23",
     "css-loader": "^0.7.0",
     "express": "^4.7.2",
     "extract-text-webpack-plugin": "^0.2.3",
@@ -41,6 +42,7 @@
     "style-loader": "^0.6.4",
     "stylus-loader": "^0.4.0",
     "tinygradient": "^0.2.0",
+    "traceur-loader": "^0.5.2",
     "webpack": "^1.3.2-beta9",
     "webpack-dev-server": "^1.4.7"
   },

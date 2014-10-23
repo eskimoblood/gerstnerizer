@@ -11,9 +11,11 @@ var Grid = Fluxxor.createStore({
       size: 100,
       rasterSize: 10,
       strokeWidth: 1,
+      distortion:0,
       type: 'rect',
       opacity: 1,
-      pattern: []
+      pattern: Immutable.Vector(),
+      colors: Immutable.Vector('#666')
     });
 
     this.undoStack = Immutable.Vector();
@@ -28,26 +30,34 @@ var Grid = Fluxxor.createStore({
   },
 
   change: function(value) {
-    if (value.rasterSize || value.type) {
-      this.state = this.state.mergeDeep({pattern: []});
-    }
-    this.undoStack = this.undoStack.push(this.state);
-    console.log(value);
-    console.log(this.state.toJS());
-    this.state = this.state.mergeDeep(value);
-    console.log(this.state.toJS());
+    this.resetPattern(value);
 
-    console.log(this.state.toJS());
+    if (this.lastState) {
+      this.undoStack = this.undoStack.push(this.lastState);
+      this.lastState = null;
+    } else {
+      this.undoStack = this.undoStack.push(this.state);
+    }
     this.redoStack = Immutable.Vector();
-    this.emit('change');
+    this.setState(this.state.merge(Immutable.fromJS(value)))
   },
 
   preview: function(value) {
-    console.log('preview');
-    if (value.rasterSize) {
-      this.state = this.state.mergeDeep({pattern: []});
+    this.resetPattern(value);
+    if (!this.lastState) {
+      this.lastState = this.state;
     }
-    this.state = this.state.mergeDeep(value);
+    this.setState(this.state.merge(value))
+  },
+
+  resetPattern: function(value) {
+    if (value.rasterSize || value.type) {
+      this.state = this.state.set('pattern', Immutable.Vector());
+    }
+  },
+
+  setState: function(state) {
+    this.state = state;
     this.emit('change');
   },
 
@@ -60,10 +70,8 @@ var Grid = Fluxxor.createStore({
       return;
     }
     this.redoStack = this.redoStack.push(this.state);
-    this.state = this.undoStack.last() || this.state;
+    this.setState(this.undoStack.last());
     this.undoStack = this.undoStack.pop();
-    console.log(this.state.toJS());
-    this.emit("change");
   },
 
   redo: function() {
@@ -71,10 +79,8 @@ var Grid = Fluxxor.createStore({
       return;
     }
     this.undoStack = this.undoStack.push(this.state);
-    this.state = this.redoStack.last() || this.state;
+    this.setState(this.redoStack.last());
     this.redoStack = this.redoStack.pop();
-    console.log(this.state.toJS());
-    this.emit("change");
   }
 
 });

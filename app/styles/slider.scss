@@ -30,7 +30,7 @@ input[type="range"]::-webkit-slider-thumb {
 
 .flaticon-columns:before {
   display: inline-block;
-  transform: rotate(90deg) translate(-2px, -2px);;
+  transform: rotate(90deg) translate(-2px, 0);
 }
 
 .slider span {
@@ -75,5 +75,10 @@ button:focus {
 
 .slider.flaticon-strokeWidth:before {
   margin-right: 11px;
+}
+
+.slider.flaticon-distortion:before {
+  margin-right: 9px;
+  font-size: 14px;;
 }
 

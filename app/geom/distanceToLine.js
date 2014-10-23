@@ -1,4 +1,9 @@
-module.exports = function(x, y, x1, y1, x2, y2) {
+module.exports = function(x, y, line) {
+
+  var x1 = line.p1.x;
+  var y1 = line.p1.y;
+  var x2 = line.p2.x;
+  var y2 = line.p2.y;
 
   var A = x - x1;
   var B = y - y1;

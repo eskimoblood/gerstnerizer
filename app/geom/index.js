@@ -6,5 +6,6 @@ module.exports = {
   },
   sketchRaster: require('./sketchRaster'),
   nearestPoint: require('./nearestPoint'),
-  distanceToLine: require('./distanceToLine')
+  distanceToLine: require('./distanceToLine'),
+  distanceToPoint: require('./distanceToPoint')
 };
